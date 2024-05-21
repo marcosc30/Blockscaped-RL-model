@@ -1,7 +1,9 @@
+import numpy as np
+
 # Here, we define all of the types of blocks
 
-# A block definition is a list of relative indices, starting from (0,0) which is the bottom leftmost cell of the block
-# If there is no bottom leftmost cell objectively, then (0,0) is the cell with the x of the left most block and the y of the bottom most block, 
+# A block definition is a list of relative indices, starting from (0,0) which is the top leftmost cell of the block
+# If there is no top leftmost cell objectively, then (0,0) is the cell with the x of the left most block and the y of the topmost block, 
 # It is just not included in the cell
 
 # Rotations are in order of rightwards 90 degree rotation
@@ -122,3 +124,33 @@ corner_block = [corner_block_rotation_0, corner_block_rotation_1, corner_block_r
 main_block_list = [L_left, L_right, one_square, two_square, three_square, 
                    two_block, three_block, four_block, five_block, z_block_right, 
                    z_block_left, corner_block]
+
+
+def print_block(block):
+    # Function to print a block into the console
+
+    # 1. Find the dimensions of the block
+    max_x = 0
+    max_y = 0
+    for cell in block:
+        if cell[0] > max_y:
+            max_y = cell[0]
+        if cell[1] > max_x:
+            max_x = cell[1]
+
+    # 2. Create a grid to print the block
+    grid = np.zeros((max_x+1, max_y+1), dtype=int)
+
+    # 3. Fill in the grid with the block
+    for cell in block:
+        grid[cell[1], cell[0]] = 1
+
+    # 4. Print the grid
+    for row in grid:
+        row_str = ""
+        for cell in row:
+            if cell == 1:
+                row_str += "██"
+            else:
+                row_str += "  "
+        print(row_str)
