@@ -32,7 +32,14 @@ def pick_blocks_custom():
     # 2. pick 3 types of block from main_block_list based on user inputs
     block_type = []
     for i in range(3):
-        block_type.append(main_block_list[int(input("Enter block type: ")) - 1])
+        done_with_this_block = False
+        while not done_with_this_block:
+            u_input = int(input("Enter block type: ")) - 1
+            if u_input >= 0 and u_input < len(main_block_list):
+                block_type.append(main_block_list[u_input])
+                done_with_this_block = True
+            else:
+                print("Invalid block type. Please try again.")
 
     # 3. print rotations of each block            
 
@@ -61,4 +68,23 @@ def pick_blocks_custom():
                 print("Invalid block rotation. Please try again.")
 
     return blocks
+
+def is_allowed(grid, block, x, y):
+    # Function to check if a block can be placed at a certain position on the grid
+    # 1. Find the dimensions of the block
+    max_x = 0
+    max_y = 0
+    for cell in block:
+        if cell[0] > max_y:
+            max_y = cell[0]
+        if cell[1] > max_x:
+            max_x = cell[1]
+    
+    # 2. Check if the block can be placed at the given position
+    for cell in block:
+        if x + cell[0] >= grid.shape[0] or y + cell[1] >= grid.shape[1]:
+            return False
+        if grid[x + cell[0], y + cell[1]] == 1:
+            return False
+    return True
 

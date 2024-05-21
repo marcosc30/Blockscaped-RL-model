@@ -6,7 +6,7 @@ import numpy as np
 # If there is no top leftmost cell objectively, then (0,0) is the cell with the x of the left most block and the y of the topmost block, 
 # It is just not included in the cell
 
-# Rotations are in order of rightwards 90 degree rotation
+# Rotations are in order of leftward 90 degree rotations
 
 # L_left:
 # 1
