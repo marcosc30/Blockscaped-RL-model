@@ -107,7 +107,7 @@ z_block_right_rotation_1 = [(0,0), (0,1), (1,1), (1,2)]
 
 z_block_right = [z_block_right_rotation_0, z_block_right_rotation_1]
 
-# corner_block_left:
+# corner_block:
 # 1
 # 1 1
 corner_block_rotation_0 = [(0,0), (1,0), (0, 1)]
@@ -120,13 +120,22 @@ corner_block_rotation_3 = [(0,0), (1,0), (1,1)]
 
 corner_block = [corner_block_rotation_0, corner_block_rotation_1, corner_block_rotation_2, corner_block_rotation_3]
 
+# rectangle_block:
+# 1 1
+# 1 1
+# 1 1
+rectangle_block_rotation_0 = [(0,0), (0,1), (1,0), (1,1), (0, 2), (1, 2)]
+rectangle_block_rotation_1 = [(0,0), (1, 0), (2, 0), (0,1), (1, 1), (2, 1)]
+
+rectangle_block = [rectangle_block_rotation_0, rectangle_block_rotation_1]
+
 
 main_block_list = [L_left, L_right, one_square, two_square, three_square, 
                    two_block, three_block, four_block, five_block, z_block_right, 
-                   z_block_left, corner_block]
+                   z_block_left, corner_block, rectangle_block]
 
 
-def print_block(block):
+def print_block(block, possible=True):
     # Function to print a block into the console
 
     # 1. Find the dimensions of the block
@@ -149,8 +158,10 @@ def print_block(block):
     for row in grid:
         row_str = ""
         for cell in row:
-            if cell == 1:
+            if cell == 1 and possible:
                 row_str += "██"
+            elif cell == 1 and not possible:
+                row_str += "XX"
             else:
                 row_str += "  "
         print(row_str)
