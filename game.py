@@ -154,7 +154,6 @@ def is_possible(grid, block):
             if is_allowed(grid, block, i, j):
                 return True
 
-
 def play_game():
     # Function to play the game
     # 1. Initialize the grid and score
