@@ -87,6 +87,8 @@ class BlockscapeEnv(gym.Env):
         
         # 3. If none of the blocks are placeable, we end the game
         if not any([is_possible(grid, block) for block in blocks]):
+            print("Game Over")
+            print("Score: ", self.score)
             return self.observation_space, 0, True, {}
 
         # 4. If the action is to place a block, we check if the block can be placed and place it if it can, otherwise we step forward without doing anything
@@ -118,5 +120,4 @@ class BlockscapeEnv(gym.Env):
     # def render(self, mode='human'):
     #     # Render the environment to the screen
     #     print_grid(self.observation_space[1])
-
 
