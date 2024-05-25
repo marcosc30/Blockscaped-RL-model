@@ -21,9 +21,9 @@ def preprocess_state(state):
 class QNetwork(nn.Module):
     def __init__(self, input_size, action_size):
         super(QNetwork, self).__init__()
-        self.fc1 = nn.Linear(input_size, 1000)
-        self.fc2 = nn.Linear(1000, 250)
-        self.fc3 = nn.Linear(250, action_size)
+        self.fc1 = nn.Linear(input_size, 10000)
+        self.fc2 = nn.Linear(10000, 1000)
+        self.fc3 = nn.Linear(1000, action_size)
 
     def forward(self, state):
         x = torch.relu(self.fc1(state))
@@ -50,7 +50,7 @@ class ReplayMemory:
         return len(self.memory)
     
 
-def train_dqn(env, num_episodes, gamma=0.99, epsilon_start=1.0, epsilon_end=0.01, epsilon_decay=0.995, batch_size=64, replay_memory_capacity=10000, lr=0.001):
+def train_dqn(env, num_episodes, gamma=0.99, epsilon_start=1.0, epsilon_end=0.01, epsilon_decay=0.995, batch_size=64, replay_memory_capacity=10000, lr=0.01):
     state_size = input_size
     action_size = np.prod(env.action_space.nvec)
 
