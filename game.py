@@ -203,5 +203,3 @@ def play_game():
                 if blocks == []:
                     subround_is_over = True
                     round_is_over = True
-
-play_game()

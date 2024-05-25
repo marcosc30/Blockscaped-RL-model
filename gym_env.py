@@ -20,7 +20,7 @@ def int_to_block(int):
     for block in main_block_list:
         for rotation in block:
             if i == int:
-                return block
+                return rotation
             i += 1
 
 def grid_to_binarray(grid):
@@ -43,9 +43,9 @@ class BlockscapeEnv(gym.Env):
         # three shapes to pick from, 64 possible placement values
         self.action_space = spaces.MultiDiscrete([3, 64])
         self.observation_space = spaces.Tuple(
-            spaces.MultiDiscrete(possible_blocks, possible_blocks, possible_blocks), # Available blocks
-            spaces.MultiBinary(64), # Grid
-            spaces.Box(low=0, high=float('inf'), shape=(1,), dtype=np.float32)) # Score
+            [spaces.MultiDiscrete([possible_blocks, possible_blocks, possible_blocks]), # Available blocks
+            spaces.MultiBinary(64)]) # Grid
+            #spaces.Box(low=0, high=float('inf'), shape=(1,), dtype=np.float32)]) # Score
         
         # state variables
         self.score = 0
@@ -55,9 +55,10 @@ class BlockscapeEnv(gym.Env):
     def get_block(self):
         # This returns the current 3 blocks, in block form
         blocks = self.observation_space[0]
+        block_forms = []
         for block in blocks:
-            block = int_to_block(block)
-        return blocks
+            block_forms.append(int_to_block(block))
+        return block_forms
 
     def get_grid(self):
         # This returns the current grid
@@ -68,25 +69,32 @@ class BlockscapeEnv(gym.Env):
     def step(self, action):
         # Execute one time step within the environment
         # Returns (observation, reward, done, info)
-        
         # 1. If all blocks are empty in the observation space, we pick 3 new blocks and place them in the observation space then finish the step
-        if np.all(self.observation_space[0] == 0):
+        if np.array_equal(self.observation_space[0], np.zeros(3)):
             random_blocks = pick_blocks_random()
+            block_ints = []
             for block in random_blocks:
-                block = block_to_int(block)
-            self.observation_space[0] = random_blocks
+                block_ints.append(block_to_int(block))
+            new_observation_space = block_ints, self.observation_space[1]#, self.observation_space[2]
+            self.observation_space = new_observation_space
             return self.observation_space, 0, False, {}
 
-        # 2. If the action is to place an empty block, we just step forward without doing anything
-        if action[0] == 0:
-            return self.observation_space, 0, False, {}
+        # 2. If the action is to place an empty block, we just step forward, detracting a small amount from the reward to guide it not to do this
+        if self.observation_space[0][action[0]] == 0:
+            #print("0 action")
+            return self.observation_space, -10, False, {}
         
         # 3. Get the blocks and grid to make working with it easier
         blocks = self.get_block()
         grid = self.get_grid()
+
+        nones_removed = blocks.copy()
+        for block in blocks:
+            if block is None:
+                nones_removed.remove(block)
         
         # 3. If none of the blocks are placeable, we end the game
-        if not any([is_possible(grid, block) for block in blocks]):
+        if not any([is_possible(grid, block) for block in nones_removed]):
             print("Game Over")
             print("Score: ", self.score)
             return self.observation_space, 0, True, {}
@@ -95,27 +103,30 @@ class BlockscapeEnv(gym.Env):
         block = blocks[action[0]]
         x = action[1] // 8
         y = action[1] % 8
-        if is_allowed(self.observation_space[1], block, x, y):
+        if is_allowed(grid, block, x, y):
+            #print("real action")
             placed_grid = place_block(grid, block, x, y)
-            new_grid, self.score = update_grid(placed_grid, self.score, block)
+            new_grid, round_score = update_grid(placed_grid, self.score, block)
+            round_score = round_score - self.score
+            self.score += round_score
 
             # We update the blocks, grid and score
             self.observation_space[0][action[0]] = 0
-            self.observation_space[1] = grid_to_binarray(new_grid)
-            self.observation_space[2] = self.score
+            new_observation_space = self.observation_space[0], grid_to_binarray(new_grid)#, self.score
+            self.observation_space = new_observation_space
         else:
             # This loss is to encourage it to not get into an infinite loop of trying to place a block that can't be placed
-            self.score -= 10
-        return self.observation_space, self.score, False, {}
+            round_score = -10
+        return self.observation_space, round_score, False, {}
 
 
     def reset(self):
         # Reset the state of the environment to an initial state
         self.score = 0
         self.current_steps = 0
-        self.observation_space = (np.zeros(3), np.zeros(64), np.zeros(1))
+        self.observation_space = (np.zeros(3), np.zeros(64))#, np.zeros(1))
 
-        return 0
+        return self.observation_space, self.score, False, {}
 
     # def render(self, mode='human'):
     #     # Render the environment to the screen
